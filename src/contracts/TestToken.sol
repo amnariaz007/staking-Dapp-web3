@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 //Erc 20 test token
-//test token which are being staked 
+
 
 contract TestToken {
     string  public name = "TestToken";

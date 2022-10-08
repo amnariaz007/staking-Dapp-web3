@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./TestToken.sol";
 
-//main staking contract
+
 contract TokenStaking {
     string public name = "Yield Farming / Token dApp";
     TestToken public testToken;
