@@ -12885,8 +12885,10 @@
     "name": "solc",
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
+
   "networks": {
     "5":{
+      
       "events": {},
       "links": {},
       "address": "0x69C78cAFA39a8141a17B1D3b6954DDA05195a7DE",

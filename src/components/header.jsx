@@ -85,14 +85,16 @@ export const Header = (props) => {
 
 
   const stakeHandler = () => {
-
+   
     let convertToWei = window.web3.utils.toWei(inputValue, 'Ether');
 
     //aproving tokens for spending
-    testTokenContract.methods
+   testTokenContract.methods
       .approve(tokenStakingContract._address, convertToWei)
       .send({ from: account })
 
+ 
+      
     if (page === 1) {
       tokenStakingContract.methods
         .stakeTokens(convertToWei)
@@ -104,14 +106,13 @@ export const Header = (props) => {
 
     }
     setInputValue('');
+      
   }
 
 
   const UnstakeHandler = () => {
 
     //aproving tokens for spending
-
-
     if (page === 1) {
       tokenStakingContract.methods
         .unstakeTokens()
