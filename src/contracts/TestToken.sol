@@ -3,13 +3,6 @@ pragma solidity ^0.5.0;
 //Erc 20 test token
 
 
-
-
-
-
-
-
-
 contract TestToken {
     string  public name = "TestToken";
     string  public symbol = "Tst";
