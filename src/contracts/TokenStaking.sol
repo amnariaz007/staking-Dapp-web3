@@ -4,7 +4,7 @@ import "./TestToken.sol";
 
 
 contract TokenStaking {
-    string public name = "Yield Farming / Token dApp";
+    string public name = "Token dApp";
     TestToken public testToken;
 
     //declaring owner state variable
