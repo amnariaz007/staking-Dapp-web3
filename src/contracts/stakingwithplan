@@ -1,0 +1,148 @@
+pragma solidity ^0.8.0;
+
+import "./TestToken.sol";
+
+contract Staking {
+     TestToken public testToken;
+    address public owner;
+
+    struct Position {
+        uint positionId;
+        address walletAddress;
+        uint createdDate;
+        uint unlockDate;
+        uint percentInterest;
+        //uint totalStaked;
+        uint weiInterest;
+        bool open;
+    }
+
+    Position position;
+    uint256 public totalStaked;
+   
+
+    //users staking balance
+    mapping(address => uint256) public stakingBalance;
+    uint public currentPositionId;
+    mapping(uint => Position) public positions;
+    mapping(address => uint[]) public positionIdsByAddress;
+    mapping (uint => uint) public tiers;
+    uint[] public lockPeriods;
+
+    constructor(TestToken _testToken) public payable{
+        testToken = _testToken;
+        owner = msg.sender;
+        currentPositionId = 0;
+
+        tiers[30] = 700;
+        tiers[90] = 1000;
+        tiers[180] = 1200;
+
+        lockPeriods.push(30);
+        lockPeriods.push(90);
+        lockPeriods.push(180);
+    }
+
+        function stakeTokens(uint256 _amount,uint numDays) public {
+        //must be more than 0
+        require(_amount > 0, "amount cannot be 0");
+         require(tiers[numDays] > 0, "Mapping not found");
+
+        //User adding test tokens
+        testToken.transferFrom(msg.sender, address(this), _amount);
+        totalStaked = totalStaked + _amount;
+
+        //updating staking balance for user by mapping
+        stakingBalance[msg.sender] = stakingBalance[msg.sender] + _amount;
+
+         positions[currentPositionId] = Position(
+        currentPositionId,
+        msg.sender,
+        block.timestamp,
+        block.timestamp + (numDays * 1 days),
+        tiers[numDays],
+        calculateInterest(tiers[numDays], numDays, _amount),
+        true
+         );
+
+          positionIdsByAddress[msg.sender].push(currentPositionId);
+        currentPositionId += 1;
+
+
+        // //checking if user staked before or not, if NOT staked adding to array of stakers
+        // if (!hasStaked[msg.sender]) {
+        //     stakers.push(msg.sender);
+        // }
+
+        // //updating staking status
+        // hasStaked[msg.sender] = true;
+        // isStakingAtm[msg.sender] = true;
+    }
+
+
+
+    // function stakeEther(uint numDays) external {
+    //     require(tiers[numDays] > 0, "Mapping not found");
+
+    //     positions[currentPositionId] = Position(
+    //     currentPositionId,
+    //     msg.sender,
+    //     block.timestamp,
+    //     block.timestamp + (numDays * 1 days),
+    //     tiers[numDays],
+    //     msg.value,
+    //     calculateInterest(tiers[numDays], numDays, msg.value),
+    //     true
+    // );
+
+    //     positionIdsByAddress[msg.sender].push(currentPositionId);
+    //     currentPositionId += 1;
+    // }
+
+    function calculateInterest(uint basisPoints, uint numDays, uint weiAmount) public pure returns(uint) {
+        return basisPoints * weiAmount / 10000; //700 / 10000 => 0.07
+    }
+
+    function modifyLockPeriods(uint numDays, uint basisPoints) external {
+        require(owner == msg.sender, "Only owner may modify staking periods");
+
+        tiers[numDays] = basisPoints;
+        lockPeriods.push(numDays);
+    }
+
+    function getLockPeriods() external view returns(uint[] memory) {
+        return lockPeriods;
+    }
+
+    function getInterestRate( uint numDays ) external view returns(uint ) {
+        return  tiers[numDays];
+    }
+
+    function getPositionById( uint positionId ) external view returns(Position memory ) {
+        return  positions[positionId];
+    }
+
+    function getPositionIdsForAddress( address walletAddress ) external view returns(uint[] memory ) {
+        return  positionIdsByAddress[walletAddress];
+    }
+
+    function changeUnlockDate(uint positionId, uint newUnlockDate) external {
+        require(owner == msg.sender, "Only owner may modify staking periods");
+
+        positions[positionId].unlockDate = newUnlockDate;
+    }
+
+    // function closePosition(uint positionId) external {
+    //     require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
+    //     require(positions[positionId].open == true, "Position is closed");
+
+    //     positions[positionId].open = false;
+
+    //     if(block.timestamp > positions[positionId].unlockDate) {
+    //         uint amount = positions[positionId].weiStaked + positions[positionId].weiInterest;
+    //         payable(msg.sender).call{value: amount}("");
+    //     } else {
+    //         payable(msg.sender).call{value: positions[positionId].weiStaked}("");
+    //     }
+    // }
+}
